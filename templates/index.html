@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GridNexus | Tic-Tac-Toe</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.css" integrity="sha512-NhLySQDkiKSKnT+R795uaHWRQ7D3VuIvgeOLCK8cWq4w5fq4sWF90gj8eURpTqn/f1mFzqClpOz8JPlgVTLfFw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body class="theme-dark">
+
+    <!-- GLOBAL UI OVERLAYS -->
+    <!-- Notification Toast System -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Mobile Navigation Backdrop -->
+    <div class="sidebar-backdrop mobile-only" id="sidebarBackdrop" onclick="toggleMobileSidebar()"></div>
+
+    <!-- Mobile Sidebar Drawer -->
+    <aside class="mobile-popup-sidebar mobile-only" id="mobilePopupSidebar">
+        <div class="sidebar-top-bar">
+            <span>Menu</span>
+            <button class="sidebar-close-btn mobile-only" onclick="toggleMobileSidebar()"><i class="fa-solid fa-times"></i></button>
+        </div>
+
+        <!-- Sidebar navigation links -->
+        <div class="nav-links mobile-only-links mobile-only">
+            <span class="nav-item active" id="link-landing" role="menuitem" tabindex="0" onclick="navigateTo('landing');">Home</span>
+                <span class="nav-item" id="link-dashboard" role="menuitem" tabindex="0" onclick="navigateTo('dashboard');">Dashboard</span>
+                <span class="nav-item" id="link-features" role="menuitem" tabindex="0" onclick="navigateTo('features');">Features</span>
+                <span class="nav-item" id="link-help" role="menuitem" tabindex="0" onclick="navigateTo('help');">Help</span>
+        </div>
+    </aside>
+
+    <!-- PRIMARY NAVIGATION ARCHITECTURE -->
+    <nav class="navbar" aria-label="Main Navigation">
+        <div class="nav-container">
+
+            <div class="nav-logo" onclick="navigateTo('landing'); showToast('Welcome back to Dashboard.', 'success');" role="button" tabindex="0" title="Home">
+                <img src="{{ url_for('static', filename='images/logo1.png') }}" alt="GridNexus" class="nav-logo-img">
+                <span class="text-logo">Grid<span class="text-accent">Nexus</span></span>
+            </div>
+
+            <div class="nav-links desktop-only" role="menubar">
+                <span class="nav-item active" id="link-landing" role="menuitem" tabindex="0" onclick="navigateTo('landing');">Home</span>
+                <span class="nav-item" id="link-dashboard" role="menuitem" tabindex="0" onclick="navigateTo('dashboard');">Dashboard</span>
+                <span class="nav-item" id="link-features" role="menuitem" tabindex="0" onclick="navigateTo('features');">Features</span>
+                <span class="nav-item" id="link-help" role="menuitem" tabindex="0" onclick="navigateTo('help');">Help</span>
+            </div>
+
+            <!-- User Authentication & Profile State -->
+            <div class="nav-actions">
+                <!-- Unauthenticated State -->
+                <div class="nav-auth" id="navAuthSection">
+                    <button id="login-btn" class="btn-secondary sm" onclick="navigateTo('loginModal');">Login</button>
+                    <button id="signup-btn" class="btn-primary sm" onclick="navigateTo('signupModal');">Sign Up</button>
+                </div> 
+
+                <!-- Authenticated State -->
+                <div class="user-profile-menu hidden" id="userProfileMenu">
+                    <div class="user-status-bar">
+                        <span id="player-profile-tag">Challenger</span>
+                        <button id="view-badges-btn" class="btn-secondary sm" title="View Achievements"><i class="fa-solid fa-trophy"></i></button>
+                    </div>
+                    <div class="profile-avatar" id="profileAvatar" onclick="toggleProfileMenu();" role="button" aria-haspopup="true" aria-expanded="false" aria-label="Toggle user menu">U</div>
+                    <div class="profile-dropdown hidden" id="dropDownMenu" role="menu"> 
+                        <div class="dropdown-profile-info">
+                            <span id="dropdown-user-name" class="dropdown-header">Challenger</span>
+                            <div class="dropdown-stats">
+                                <span>Wins: <b id="stat-wins">0</b></span>
+                                <span>Ties: <b id="stat-ties">0</b></span>
+                            </div>
+                        </div>
+                        <div class="divider"></div>
+                        <button class="dropdown-item" onclick="document.getElementById('view-badges-btn').click(); toggleProfileMenu();"><i class="fa-solid fa-trophy"></i> Achievements</button>
+                        <button id="logout-btn" class="dropdown-item" onclick="handleLogout();"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+                    </div>
+                </div>
+            </div>
+            <div class="nav-left mobile-only" id="navLeftSection">
+                <button class="menu-toggle-btn dashboard-contents mobile-only" onclick="toggleMobileSidebar()" aria-label="Toggle Navigation Menu">
+                    <i class="fa-duotone fa-solid fa-bars"></i>
+                    <span class="menu-toggle-text">Menu</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="app-container">
+
+        <!-- INFORMATIONAL PAGE VIEWS -->
+        <!-- 1. Hero Landing Matrix -->
+        <section id="page-landing" class="page-view active">
+            <div class="hero-section">
+                <h1 class="hero-title">Welcome to Grid<span class="text-accent">Nexus</span></h1>
+                <p class="hero-subtitle">The Ultimate AI-Powered Tic-Tac-Toe Experience</p>
+                <div class="hero-cta-row">
+                    <button id="start-btn" class="btn-primary btn-large" onclick="navigateTo('dashboard'); showToast('Welcome to the Dashboard. Choose your battleground!', 'success');">
+                        Start Playing &nbsp;<i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                    <button class="btn btn-secondary btn-large" onclick="navigateTo('features')">Explore Features</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Feature Showcase -->
+        <section id="page-features" class="page-view">
+            <div class="section-header">
+                <h2>Revolutionizing Tic-Tac-Toe with AI</h2>
+                <p>Discover the cutting-edge features that make GridNexus the premier destination for tic-tac-toe enthusiasts and AI challengers alike.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fa-solid fa-robot feature-icon"></i>
+                    <h3>Adaptive AI Opponent</h3>
+                    <p>Engage with an AI that learns and evolves based on your playstyle, offering a unique challenge every time.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fa-solid fa-layer-group feature-icon"></i>
+                    <h3>Multiple Game Variants</h3>
+                    <p>From classic 3x3 to the complex Ultimate Nexus, choose your battleground and test your strategic prowess.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fa-solid fa-trophy feature-icon"></i>
+                    <h3>Achievement Badges</h3>
+                    <p>Unlock badges for milestones and challenges, showcasing your progress and dedication to mastering the game.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fa-solid fa-users feature-icon"></i>
+                    <h3>Local Multiplayer Mode</h3>
+                    <p>Challenge friends and family in a head-to-head match, or team up against the AI for cooperative play.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fa-solid fa-bolt feature-icon"></i>
+                    <h3>Blitz Protocol</h3>
+                    <p>Experience high-stakes gaming with rapid-fire countdown timers that force split-second tactical decisions.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fa-solid fa-chart-line feature-icon"></i>
+                    <h3>Strategic Analytics</h3>
+                    <p>Track your performance across different matrices with real-time feedback and dynamic difficulty adjustments.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Help & FAQ Matrix -->
+        <section id="page-help" class="page-view">
+            <div class="section-header">
+                <h2>Need Assistance?</h2>
+                <p>Explore our comprehensive help resources to get the most out of your GridNexus experience.</p>
+            </div>
+            <div class="search-box-container">
+                <input type="text" id="help-search-input" class="search-input" placeholder="Search help topics..." aria-label="Search help topics">
+                <button id="help-search-btn" aria-label="Search Help"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-trigger" onclick="toggleFAQ(this)" role="button" aria-expanded="false" aria-controls="faq1Answer">
+                        <span class="faq-question">How does the AI opponent adapt to my playstyle?</span>
+                        <span class="faq-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-panel" id="faq1Answer">
+                        <p>Our AI uses a combination of reinforcement learning and pattern recognition to analyze your moves and adjust its strategy accordingly, providing a dynamic and challenging experience.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-trigger" onclick="toggleFAQ(this)" role="button" aria-expanded="false" aria-controls="faq2Answer">
+                        <span class="faq-question">What are the differences between the game variants?</span>
+                        <span class="faq-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-panel" id="faq2Answer">
+                        <p>The Classic Nexus features a standard 3x3 grid, while the Expanded Matrix uses a 5x5 grid requiring 4 in a row to win. The Ultimate Nexus is a complex 9x9 grid with nested sub-grids, offering deep strategic gameplay.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-trigger" onclick="toggleFAQ(this)" role="button" aria-expanded="false" aria-controls="faq3Answer">
+                        <span class="faq-question">How do I earn achievement badges?</span>
+                        <span class="faq-icon"><i class="fa-solid fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-panel" id="faq3Answer">
+                        <p>Achievement badges are earned by reaching specific milestones, such as winning a certain number of games, achieving a winning streak, or completing challenges in different game variants. Check the Achievements section for details on how to unlock each badge.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="help-footer">
+                <p>Still have questions regarding the GridNexus architecture?</p>
+                <button class="btn btn-secondary mt-4" onclick="showToast('Support system initializing...', 'info')">Contact Strategic Support</button>
+            </div>
+        </section>
+
+        <!-- CORE INTERACTIVE GAME ENGINE VIEWS -->
+        <!-- 4. Variant Dashboard (Selector) -->
+        <section id="dashboard-view" class="view-panel hidden">
+            <div class="welcome-card">
+                <h2>Choose Your Battleground</h2>
+                <p>Select an architectural game variant to challenge our predictive neural network.</p>
+            </div>
+
+            <div class="nickname-portal">
+                <input type="text" id="username-input" placeholder="Enter temporary nickname..." maxlength="15" autocomplete="nickname">
+                <button id="save-profile-btn" class="btn-primary sm">Set Nickname</button>
+            </div>
+
+            <div class="variant-grid">
+                <div class="variant-card" data-variant="classic">
+                    <div class="card-icon">3<i class="fas fa-times"></i>3</div>
+                    <h3>Classic Nexus</h3>
+                    <p>Standard matrix configuration. Perfect lookup tree. Unbeatable agent engine.</p>
+                    <button class="btn-primary start-setup-btn" data-variant="3">Launch Grid</button>
+                </div>
+
+                <div class="variant-card" data-variant="expanded">
+                    <div class="card-icon">5<i class="fas fa-times"></i>5</div>
+                    <h3>Expanded Matrix</h3>
+                    <p>Deep operational space. Requires 4 symbols aligned. Depth-limited heuristic checks.</p>
+                    <button class="btn-primary start-setup-btn" data-variant="5">Launch Grid</button>
+                </div>
+
+                <div class="variant-card" data-variant="ultimate">
+                    <div class="card-icon">9<i class="fa-solid fa-xmark"></i>9</div>
+                    <h3>Ultimate Nexus</h3>
+                    <p>9 nested sub-grids. Complex macro-micro state coordination. Pure strategic depth.</p>
+                    <button class="btn-accent start-setup-btn" data-variant="ultimate">Launch Mega-Grid</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. Match Configuration (Setup) -->
+        <section id="setup-view" class="view-panel hidden">
+            <button class="back-to-menu-btn text-link">← Change Variant</button>
+            
+            <div class="setup-box">
+                <h2 id="setup-title">Configure Match Parameters</h2>
+                
+                <div class="config-group">
+                    <label>Gameplay Mode</label>
+                    <div class="toggle-switch-container">
+                        <button id="mode-ai-btn" class="toggle-btn active" data-mode="ai">Vs AI Agent</button>
+                        <button id="mode-local-btn" class="toggle-btn" data-mode="local">Local 2-Player</button>
+                    </div>
+                </div>
+
+                <div id="difficulty-selection-wrapper" class="config-group">
+                    <label>AI Behavioral Protocol</label>
+                    <div class="difficulty-cluster">
+                        <button class="diff-btn" data-diff="easy">Easy (85% Blunder Rate)</button>
+                        <button class="diff-btn" data-diff="medium">Medium (35% Blunder Rate)</button>
+                        <button class="diff-btn active" data-diff="hard">Hard (Flawless Minimax)</button>
+                    </div>
+                </div>
+
+                <div class="config-group inline-group">
+                    <div>
+                        <label>Blitz Protocol</label>
+                        <p class="sublabel">Enforces rapid-fire countdown timers per turn.</p>
+                    </div>
+                    <input type="checkbox" id="blitz-toggle" class="ios-switch">
+                </div>
+
+                <button id="initialize-game-btn" class="btn-large-action">Engage Match Loop</button>
+            </div>
+        </section>
+
+        <!-- 6. Game Arena (Active Play) -->
+        <section id="arena-view" class="view-panel hidden">
+            <div class="arena-header">
+                <div class="scoreboard">
+                    <div class="score-box score-x">
+                        <span class="score-label">Player (X)</span>
+                        <span id="score-x-val" class="score-num">0</span>
+                    </div>
+                    <div class="score-box score-tie">
+                        <span class="score-label">Ties</span>
+                        <span id="score-ties-val" class="score-num">0</span>
+                    </div>
+                    <div class="score-box score-o">
+                        <span id="score-o-label" class="score-label">AI (O)</span>
+                        <span id="score-o-val" class="score-num">0</span>
+                    </div>
+                    <button id="clear-scores-btn" class="btn-clear-scores" title="Reset Lifetime Stats"><i class="fa-solid fa-rotate-left"></i></button>
+                </div>
+
+                <div class="status-hub">
+                    <div id="turn-announcer" class="announcer">Player X's Turn</div>
+                    <div id="blitz-timer-display" class="timer-clock hidden">00:10</div>
+                </div>
+            </div>
+
+            <!-- Dynamic Grid Injection Point -->
+            <div id="game-board-container" class="board-wrapper"></div>
+
+            <div class="arena-controls">
+                <button id="abort-match-btn" class="btn-secondary">Abort Match</button>
+                <button id="instant-restart-btn" class="btn-primary">Instant Restart</button>
+            </div>
+        </section>
+    </main>
+
+    <!-- DIALOGS & MODAL COMPONENTS -->
+    <!-- Achievement Showcase Modal -->
+        <section id="badges-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="badgesModalTitle">
+            <div class="achievements-container" onclick="event.stopPropagation()">
+                <div class="achievements-header">
+                    <h2 id="badgesModalTitle">Unlocked Achievement Badges</h2>
+                    <button type="button" id="close-modal-btn" class="close-icon" aria-label="Close Achievements Modal"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            <div id="badges-grid-container" class="badges-showcase"></div>
+            </div>
+        </section>
+
+    <!-- User Authentication: Login -->
+    <div class="modal-overlay hidden" id="loginModal" onclick="handleModalOutSideClick(event, 'loginModal')" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="loginModalTitle">Login to GridNexus</h3>
+                <button type="button" class="modal-close" onclick="closeModal('loginModal')" aria-label="Close Login Modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form class="modal-body" onsubmit="event.preventDefault(); executeLoginFlow();">
+                <div class="form-group">
+                    <label for="loginEmail">Email Address</label>
+                    <input type="email" id="loginEmail" name="email" class="form-control" placeholder="name@domain.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Security Password</label>
+                    <input type="password" id="loginPassword" name="password" class="form-control" placeholder="Enter your password" required autocomplete="current-password">
+                </div>
+                <div id="loginErrorMsg" class="error-msg-block hidden"></div>
+                <button type="submit" class="btn btn-primary w-full">Authenticate Account</button>
+                <div class="text-center mt-4">
+                    <span>Don't have an account? </span>
+                    <button type="button" class="btn-link btn-link-secondary" onclick="switchModal('signupModal', 'loginModal')">Sign up here</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Authentication: Signup -->
+    <div class="modal-overlay hidden" id="signupModal" onclick="handleModalOutSideClick(event, 'signupModal')" role="dialog" aria-modal="true" aria-labelledby="signupModalTitle">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3 id="signupModalTitle">Create Account</h3>
+                <button type="button" class="modal-close" onclick="closeModal('signupModal')" aria-label="Close Signup Modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form class="modal-body" onsubmit="event.preventDefault(); executeSignupFlow();">
+                <div class="form-group">
+                    <label for="signupName">Full Name</label>
+                    <input type="text" id="signupName" name="fullname" class="form-control" placeholder="Enter Full Name" required autocomplete="name">
+                </div>
+                <div class="form-group">
+                    <label for="signupEmail">Email Address</label>
+                    <input type="email" id="signupEmail" name="email" class="form-control" placeholder="username@domain.com" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" name="password" class="form-control" placeholder="Create Secure Password" required autocomplete="new-password">
+                </div>
+                <div id="signupErrorMsg" class="error-msg-block hidden"></div>
+                <button type="submit" class="btn btn-primary w-full">Sign Up</button>
+                <div class="text-center mt-4">
+                    <span>Already have an account? </span>
+                    <button type="button" class="btn-link btn-link-secondary" onclick="switchModal('loginModal', 'signupModal')">Login here</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SITE FOOTER -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <h6 class="footer-title">GridNexus Technologies Inc.</h6>
+            <p class="footer-copy"><i class="fa-regular fa-copyright"></i> 2026 GridNexus. All core operational rights reserved.</p>
+            <nav class="footer-links" aria-label="Legal Information">
+                <a href="javascript:void(0)" onclick="showToast('Activating Privacy Policy...', 'info')">Privacy Policy</a>
+                <a href="javascript:void(0)" onclick="showToast('Activating Terms of Service...', 'info')">Terms of Service</a>
+            </nav>
+            <div class="footer-socials">
+                <a href="https://github.com/Somansh25/" target="_blank" class="social-icon" title="GitHub" aria-label="Visit our GitHub" onclick="showToast('Redirecting to GitHub Profile...', 'info')"><i class="fa-brands fa-github"></i></a>
+                <a href="https://www.linkedin.com/in/somanshchauhan/" target="_blank" class="social-icon" title="LinkedIn" aria-label="Visit our LinkedIn" onclick="showToast('Redirecting to LinkedIn Profile...', 'info')"><i class="fa-brands fa-linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- APPLICATION SCRIPT MANIFEST -->
+    <script src="{{ url_for('static', filename='js/achievements.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/ai_bridge.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/game_classic.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/game_ultimate.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
