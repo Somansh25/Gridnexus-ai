@@ -458,7 +458,7 @@ button {
 .faq-trigger { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; cursor: pointer; transition: background 0.2s; }
 .faq-trigger:hover { background: rgba(255, 255, 255, 0.04); color: var(--accent);}
 .faq-panel { max-height: 0; overflow: hidden; transition: var(--transition-smooth); padding: 0 1.5rem; background: rgba(0, 0, 0, 0.1); }
-.faq-panel.active { max-height: 200px; padding: 1rem 1.5rem; }
+.faq-panel.active { max-height: 200px !important; padding: 1rem 1.5rem; }
 .help-footer { text-align: center; margin-top: 3rem; }
 
 /* --------------------------------------------------------------------------
