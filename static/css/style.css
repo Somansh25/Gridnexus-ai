@@ -946,20 +946,20 @@ button {
 }
 
 /* Color Matrix mapping to JS types */
-.toast-success::before { background: #00ff88; box-shadow: 0 0 12px #00ff88; }
-.toast-success { border-color: rgba(0, 255, 136, 0.2); }
+.toast-success::before { background: #00f5d4; box-shadow: 0 0 12px rgba(0, 245, 212, 0.5); }
+.toast-success { border-color: rgba(0, 245, 212, 0.2); }
 
 .toast-victory::before { background: var(--tier-gold); box-shadow: 0 0 15px var(--tier-gold); }
 .toast-victory { border-color: rgba(251, 191, 36, 0.2); }
 
-.toast-error::before, .toast-fail::before { background: #ff3366; box-shadow: 0 0 12px #ff3366; }
-.toast-error, .toast-fail { border-color: rgba(255, 51, 102, 0.2); }
+.toast-error::before, .toast-fail::before { background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+.toast-error, .toast-fail { border-color: var(--accent-glow); }
 
-.toast-warning::before, .toast-timer::before { background: #ffae00; box-shadow: 0 0 12px #ffae00; }
-.toast-warning, .toast-timer { border-color: rgba(255, 174, 0, 0.2); }
+.toast-warning::before, .toast-timer::before { background: #ff9f43; box-shadow: 0 0 12px rgba(255, 159, 67, 0.5); }
+.toast-warning, .toast-timer { border-color: rgba(255, 159, 67, 0.2); }
 
-.toast-info::before { background: #00ccff; box-shadow: 0 0 12px #00ccff; }
-.toast-info { border-color: rgba(0, 204, 255, 0.2); }
+.toast-info::before { background: #00d2ff; box-shadow: 0 0 12px rgba(0, 210, 255, 0.5); }
+.toast-info { border-color: rgba(0, 210, 255, 0.2); }
 
 /* Typography & Content Layout */
 .toast-notification span {
